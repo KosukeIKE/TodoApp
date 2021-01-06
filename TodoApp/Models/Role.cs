@@ -11,6 +11,7 @@ namespace TodoApp.Models
 
         public string RoleName { get; set; }
 
+        //一つのRoleの中に複数のユーザーを持つ
         public virtual ICollection<User> Users { get; set; }
     }
 }

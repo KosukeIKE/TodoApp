@@ -37,20 +37,32 @@ namespace TodoApp.Models
         //指定されたRoleを配列にして返す
         public override string[] GetRolesForUser(string username)
         {
-            if ("administrator".Equals(username))
+            using (var db = new TodoesContext())
             {
-                return new string[]
+                var user = db.Users.Where(u => u.UserName == username).FirstOrDefault();
+
+                if(user != null)
                 {
-                    "Administrators"
-                };
+                    //select, toarray
+                    return user.Roles.Select(role => role.RoleName).ToArray();
+                }
             }
-            else
-            {
-                return new string[]
-                {
-                    "Users"
-                };
-            }
+            return new string[] { };
+
+            //if ("administrator".Equals(username))
+            //{
+            //    return new string[]
+            //    {
+            //        "Administrators"
+            //    };
+            //}
+            //else
+            //{
+            //    return new string[]
+            //    {
+            //        "Users"
+            //    };
+            //}
 
         }
 
@@ -63,17 +75,19 @@ namespace TodoApp.Models
         //引数に所属していたusernameがroleに所属しているかを確かめる
         public override bool IsUserInRole(string username, string roleName)
         {
-            if ("administrator".Equals(username) && "Administrators".Equals(roleName))
-            {
-                return true;      
-            }
-            else if("user".Equals(username) && "Users".Equals(roleName))
-            {
-                return true;
-            }else
-            {
-                return false;
-            }
+            string[] roles = this.GetRolesForUser(username);
+            return roles.Contains(roleName);//containsとは
+            //if ("administrator".Equals(username) && "Administrators".Equals(roleName))
+            //{
+            //    return true;      
+            //}
+            //else if("user".Equals(username) && "Users".Equals(roleName))
+            //{
+            //    return true;
+            //}else
+            //{
+            //    return false;
+            //}
         }
 
         public override void RemoveUsersFromRoles(string[] usernames, string[] roleNames)
