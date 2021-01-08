@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Web;
+using TodoApp.Models;
 
 namespace TodoApp
 {
+    //POCO（使用したいデータのPropertyのみを実装する）すると自動でControllerが作成される。Context.csへ
     public class Todo
     {
+        [DisplayName("番号名")]
         public int Id { get; set; }
         [DisplayName("概要")]
         public string Summary { get; set; }
@@ -17,5 +18,8 @@ namespace TodoApp
         public DateTime Limit { get; set; }
         [DisplayName("終了")]
         public bool Done { get; set; }
+
+        public virtual User User { get; set; } 
+
     }
 }

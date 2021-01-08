@@ -11,7 +11,8 @@ namespace TodoApp.Models
     {
         [Required]//必須項目にする
         [DisplayName("ユーザー名")]//表示名の変更
-        public string UserName { get; set; }
+
+        public string UserName { get; set; }//プロパティ
 
         [Required]
         [DataType(DataType.Password)]//登録したものをパスワードにする

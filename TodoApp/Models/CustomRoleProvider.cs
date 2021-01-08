@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Security;
 
 namespace TodoApp.Models
 {
+    //役割をグループ化するためのもの
     public class CustomRoleProvider : RoleProvider
     {
         public override string ApplicationName { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
@@ -34,7 +33,7 @@ namespace TodoApp.Models
         {
             throw new NotImplementedException();
         }
-        //指定されたRoleを配列にして返す
+        //指定されたRole(役割)を配列にして返す
         public override string[] GetRolesForUser(string username)
         {
             using (var db = new TodoesContext())

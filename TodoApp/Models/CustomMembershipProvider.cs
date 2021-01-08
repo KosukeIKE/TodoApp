@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Web;
 using System.Web.Security;
 
 namespace TodoApp.Models
 {
+    //認証機能を司るクラス
     public class CustomMembershipProvider : MembershipProvider
     {
         public override bool EnablePasswordRetrieval => throw new NotImplementedException();
@@ -107,18 +109,28 @@ namespace TodoApp.Models
         //認証機能の実装
         public override bool ValidateUser(string username, string password)
         {
+
             using (var db = new TodoesContext())
             {
+                string hash = this.GeneratePasswordHash(username, password);
                 //whereの使い方
-                var user = db.Users.Where(u => u.UserName == username && u.Password == password).FirstOrDefault();//.FirstOrDefault()はlistの先頭を取得またはnullを返す
+                var user = db.Users.Where(u => u.UserName == username && u.Password ==hash).FirstOrDefault();//.FirstOrDefault()はlistの先頭を取得またはnullを返す
 
                 if (user != null)
                 {
                     return true;
                 }
+                //仮実装
+                if("admin".Equals(username) && "password".Equals(password))
+                {
+                    return true;
+                }
+            
             }
             return false;
-            //if ("administrator".Equals(username) && "password".Equals(password))
+
+            //はじめはユーザーネームとパスワードを固定していた
+            //if ("administrator".Equals(username) && "password".Equals(password))//.Equals(username)指定されたオブジェクトが等しいかどうかを判断するメソッド
             //{
             //    return true;
             //} else if ("user".Equals(username) && "password".Equals(password))
@@ -128,6 +140,19 @@ namespace TodoApp.Models
             //{
             //    return false;
             //}
+        }
+
+        //パスワードをハッシュ化する
+        public string GeneratePasswordHash(string username, string password)
+        {
+            string rawSalt = $"secret_{username}";
+            var sha256 = new SHA256CryptoServiceProvider();
+            var salt = sha256.ComputeHash(System.Text.Encoding.UTF8.GetBytes(rawSalt));
+
+            var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 10000);
+            var hash = pbkdf2.GetBytes(32);
+
+            return Convert.ToBase64String(hash);
         }
     }
 }

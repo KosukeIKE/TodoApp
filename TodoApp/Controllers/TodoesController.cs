@@ -14,24 +14,34 @@ namespace TodoApp.Controllers
     [Authorize]//認証されている状態のみ確認できる
     public class TodoesController : Controller
     {
-        private TodoesContext db = new TodoesContext();
-
+        private TodoesContext db = new TodoesContext();//controllerでDBを操作するためのもの
         //これらはアクションメソッドと言う
+        //アクセスするときは必ずDBを通して行う
 
         // GET: Todoes
-        public ActionResult Index()//viewを表示するためのクラスのこと
+        public ActionResult Index()//viewを表示するためのアクションクラスのこと
         {
-            return View(db.Todoes.ToList());//index.cshtmlにtodoのリストを与えて表示する
+            //UserNameを表示する
+            var user = db.Users.Where(item => item.UserName == User.Identity.Name).FirstOrDefault();
+
+            if(user !=null)
+            {
+                return View(user.Todoes);
+            }
+            return View(new List<Todo>());
+
+            //return View(db.Todoes.ToList());//index.cshtmlにtodoのリストを与えて表示する
         }
 
         // GET: Todoes/Details/5
-        public ActionResult Details(int? id)//リクエスト時にidがnullの場合
+        public ActionResult Details(int? id)//idが未指定の場合はnull、違う場合はIdがセットされる
         {
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Todo todo = db.Todoes.Find(id);
+
+            Todo todo = db.Todoes.Find(id);//データのIdを変数に入れ込む。
             if (todo == null)
             {
                 return HttpNotFound();
@@ -48,14 +58,24 @@ namespace TodoApp.Controllers
         // POST: Todoes/Create
         // 過多ポスティング攻撃を防止するには、バインド先とする特定のプロパティを有効にしてください。
         [HttpPost]
-        [ValidateAntiForgeryToken]//CSRF対策でトークンを生成する
+        [ValidateAntiForgeryToken]//CSRF対策のためにトークンを生成する
         public ActionResult Create([Bind(Include = "Id,Summary,Detail,Limit,Done")] Todo todo)//[Bind(Include = "Id,Summary,Detail,Limit,Done")]過多ポスティング攻撃を防いでいる
         {
             if (ModelState.IsValid)//入力内容が適切の場合
             {
-                db.Todoes.Add(todo);//sbsetに値を登録する
-                db.SaveChanges();//dbに変更を反映する
-                return RedirectToAction("Index");//指定されたアクションにredirectする
+
+                var user = db.Users.Where(item => item.UserName == User.Identity.Name).FirstOrDefault();
+
+                //if (user != null)
+                //{
+                    todo.User = user;
+
+
+                    db.Todoes.Add(todo);//sbsetに値を登録する
+                    db.SaveChanges();//dbに変更を反映する
+                    return RedirectToAction("Index");//指定されたアクションに転送するhelpermethod
+                //}
+
             }
 
             return View(todo);
@@ -86,8 +106,8 @@ namespace TodoApp.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(todo).State = EntityState.Modified;//該当のデータをセットすることができる
-                db.SaveChanges();
+                db.Entry(todo).State = EntityState.Modified;//該当のデータをセットして更新できる
+                db.SaveChanges();//更新を反映する
                 return RedirectToAction("Index");
             }
             return View(todo);

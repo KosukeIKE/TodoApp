@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
 using TodoApp.Models;
 
@@ -14,6 +12,8 @@ namespace TodoApp.Controllers
     public class UsersController : Controller
     {
         private TodoesContext db = new TodoesContext();
+
+        readonly private CustomMembershipProvider membershipProvider = new CustomMembershipProvider();
 
         // GET: Users
         public ActionResult Index()
@@ -55,6 +55,8 @@ namespace TodoApp.Controllers
             if (ModelState.IsValid)
             {
                 user.Roles = roles;
+                //不安
+                user.Password = this.membershipProvider.GeneratePasswordHash(user.UserName, user.Password);
 
                 db.Users.Add(user);
                 db.SaveChanges();
@@ -93,6 +95,10 @@ namespace TodoApp.Controllers
             if (ModelState.IsValid)
             {
                 var dbUser = db.Users.Find(user.Id);
+                if(!dbUser.Password.Equals(user.Password))
+                {
+                    dbUser.Password = this.membershipProvider.GeneratePasswordHash(user.UserName, user.Password);
+                }
 
                 if (dbUser == null)
                 {
