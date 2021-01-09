@@ -14,12 +14,12 @@ namespace TodoApp.Controllers
     [Authorize]//認証されている状態のみ確認できる
     public class TodoesController : Controller
     {
-        private TodoesContext db = new TodoesContext();//controllerでDBを操作するためのもの
+        private TodoesContext db = new TodoesContext();//controllerでDBを操作するために初期化
         //これらはアクションメソッドと言う
         //アクセスするときは必ずDBを通して行う
 
-        // GET: Todoes
-        public ActionResult Index()//viewを表示するためのアクションクラスのこと
+        // GET: Todoes にアクセスがあるとこのメソッドが呼ばれる
+        public ActionResult Index()//アクションクラスを呼ぶ
         {
             //UserNameを表示する
             var user = db.Users.Where(item => item.UserName == User.Identity.Name).FirstOrDefault();
@@ -49,7 +49,7 @@ namespace TodoApp.Controllers
             return View(todo);
         }
 
-        // GET: Todoes/Create
+        // GET: Todoes/Create.cshtml
         public ActionResult Create()
         {
             return View();
@@ -57,8 +57,8 @@ namespace TodoApp.Controllers
 
         // POST: Todoes/Create
         // 過多ポスティング攻撃を防止するには、バインド先とする特定のプロパティを有効にしてください。
-        [HttpPost]
-        [ValidateAntiForgeryToken]//CSRF対策のためにトークンを生成する
+        [HttpPost]//クライアントがPostされたら呼ばれるアノテーション（属性）
+        [ValidateAntiForgeryToken]//CSRF対策のためにPostされたトークン(Viewで生成されたもの)を検証する
         public ActionResult Create([Bind(Include = "Id,Summary,Detail,Limit,Done")] Todo todo)//[Bind(Include = "Id,Summary,Detail,Limit,Done")]過多ポスティング攻撃を防いでいる
         {
             if (ModelState.IsValid)//入力内容が適切の場合
@@ -73,7 +73,7 @@ namespace TodoApp.Controllers
 
                     db.Todoes.Add(todo);//sbsetに値を登録する
                     db.SaveChanges();//dbに変更を反映する
-                    return RedirectToAction("Index");//指定されたアクションに転送するhelpermethod
+                    return RedirectToAction("Index");//指定されたアクションに転送するHelpermethod
                 //}
 
             }

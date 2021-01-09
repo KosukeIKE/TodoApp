@@ -33,6 +33,16 @@ namespace TodoApp.Models
         {
             throw new NotImplementedException();
         }
+
+
+
+
+
+
+
+
+
+
         //指定されたRole(役割)を配列にして返す
         public override string[] GetRolesForUser(string username)
         {

@@ -10,7 +10,7 @@
 
 @using (Html.BeginForm())
 {
-    @Html.AntiForgeryToken()//CSRF対策でトークンを検証して一致したらページの表示をする
+    @Html.AntiForgeryToken()//CSRF対策としてトークンが生成されてHiddenForにセットされる
 
     <div class="form-horizontal">
         <h4>Todo</h4>

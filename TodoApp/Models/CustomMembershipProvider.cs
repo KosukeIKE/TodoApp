@@ -106,7 +106,12 @@ namespace TodoApp.Models
         {
             throw new NotImplementedException();
         }
-        //認証機能の実装
+
+
+
+
+
+        //認証機能の実装。validateUser(); はユーザー名とパスワードを引数に取って正しいかどうかをreturnする
         public override bool ValidateUser(string username, string password)
         {
 
